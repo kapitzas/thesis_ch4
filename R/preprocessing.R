@@ -56,7 +56,7 @@ mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 mask_30min <- raster(file.path(temp_path, "mask_30min.tif"))
 
 # 2. a Process pop dens data
-
+# Data available from https://sedac.ciesin.columbia.edu/data/collection/gpw-v4
 popdens <- list.files(file.path(raw_path, "Global", "popdens"), pattern = ".tif$", recursive = TRUE, full.name = TRUE)
 
 # Get SSP 2, SSP 7 and base year
@@ -79,6 +79,13 @@ for (i in 1:length(popdens)){
 }
 
 # 2.b Making distance rasters for land use model (need these to be global)
+
+#Data available through:
+#Global road networks: http://sedac.ciesin.columbia.edu/data/set/groads-global-roads-open-access-v1/data-download#openModal
+#Global drainage systems: http://www.soest.hawaii.edu/wessel/gshhg/
+#GLobal built-up areas: http://ref.data.fao.org/map?entryId=c22837d0-88fd-11da-a88f-000d939bc5d8&tab=metadata
+#Global lakes: http://www.soest.hawaii.edu/wessel/gshhg/
+#Protected areas: http://wcmc.io/wdpa_current_release (downloaded Feb 2018)
 
 mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 mask_30min <- raster(file.path(temp_path, "mask_30min.tif"))
@@ -172,6 +179,8 @@ rm(out, pa2, pa)
 unlink(infile)
 
 # 2. d ELevation
+# Data available through https://www.worldclim.org/data/index.html
+
 mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 infile <-file.path(raw_path, "Global", "wc2.1_30s_elev.tif")
 
@@ -187,6 +196,8 @@ writeRaster(slope, filename = file.path(temp_path, paste0("slope_5min.tif")), dr
 writeRaster(roughness, filename = file.path(temp_path, paste0("roughness_5min.tif")), driver = "GTiff", overwrite = TRUE)
 
 # 2.e Bioclim variables
+# Data available through https://www.worldclim.org/data/index.html
+
 mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 biofiles <- list.files(file.path(raw_path, "Global", "worldclim", "wc2"), full.names = TRUE)
 bionames <- sort(paste0("bio", 1:19))
@@ -198,8 +209,8 @@ for (i in 1:length(biofiles)){
 }
 
 # 2.f soils
+#Data avialable through: https://www.isric.org/explore/soilgrids/faq-soilgrids
 
-#Full description: https://www.isric.org/explore/soilgrids/faq-soilgrids
 mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 
 # Organic Carbon Density
@@ -237,6 +248,8 @@ for (i in 1:length(q2_list)){
 require(sf)
 
 # ecoregions rasters
+# https://globil-panda.opendata.arcgis.com/datasets/terrestrial-ecoregions-world?geometry=-168.047%2C-89.797%2C168.047%2C78.019
+
 ecoregs <- read_sf(file.path(raw_path, "Global", "Terrestrial_Ecoregions_World", "Terrestrial_Ecoregions_World.shp"))
 ecoregs$REALM <- as.factor(ecoregs$REALM)
 ecoreglevels <- cbind(levels(ecoregs$REALM), 1:8)
@@ -265,6 +278,7 @@ mask_5min <- raster(file.path(temp_path, "mask_5min.tif"))
 mask_30min <- raster(file.path(temp_path, "mask_30min.tif"))
 
 # 3. a GLS Data
+# Available from https://www.environmentalgeography.nl/site/data-models/data/global-land-system-classification/
 
 # Assign CRS and write back to disk
 gls <- raster(file.path(raw_path, "Global", "GLS_data", "land_systems.asc"))
@@ -287,6 +301,7 @@ names(gls_layers) <- gls_classes
 writeRaster(readAll(gls_layers), filename=file.path(temp_path, "gls_30min.tif"), options="INTERLEAVE=BAND", overwrite=TRUE)
 
 # 3. b Harmonized land use data
+# Data available via https://data.csiro.au/collections/#collection/CIcsiro:15276v3
 
 # load data
 harmonized <- list.files(file.path(raw_path, "Global", "harmonised land use downscaled"), pattern = ".bil", recursive = TRUE, full.name = TRUE)
@@ -309,6 +324,7 @@ for (i in 1:length(harmonized)){
 }
 
 # 3. c PREDICTS land use at 0.5 degree
+# https://data.nhm.ac.uk/dataset/the-2016-release-of-the-predicts-database
 
 # Make conversion table
 conversion_table <- data.frame("GLS_class" = paste0("gls", 0:29))
@@ -388,6 +404,8 @@ names(final_lu30min) <- names
 writeRaster(final_lu30min, filename=file.path(temp_path, paste0(names, "_predicts_30min.tif")), overwrite=TRUE, bylayer =TRUE)
 
 # 3. d Preprocess 30 min LUH1 future land use for predictions of M8.5 and M8.5 demand scenarios
+# Data available via https://luh.umd.edu/data.shtml
+s
 lu_files <- list.files(file.path(raw_path, "Global", "LUHa_u2.v1_message.v1", "updated_states"), pattern = "2100", full.names = TRUE)
 lu_files <- stack(lu_files[grep(pattern = paste(c("gcrop", "gothr", "gpast", "gsecd", "gurbn"), collapse = "|"), lu_files)])
 names(lu_files) <- c("cropland", "primary", "pasture", "secondary", "urban")
